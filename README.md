@@ -13,7 +13,7 @@
 - `preprocess_crypto.py`: Preprocesses and joins cryptocurrency and legality policy data, then saves it to 'policy_crypto_analysis.csv'.
 - `preprocess_exchange_rate.py`: Preprocesses and joins exchange rate and legality policy data, then saves it to 'policy_exchange_analysis.csv'. Refer to Slide 24 for more information.
 
-### Data (SharedCryptoTax/Jason/upload/data)
+### Data (some large data files are not uploaded due to GitHub file size limit)
 
 - `national-gdp-constant-usd-wb.csv`: GDP data by country.
 - `policy_analysis1.csv`: Joined cryptocurrency and policy data, log price/volume for the policy date.
@@ -22,6 +22,6 @@
 - `price.xlsx`: Cryptocurrency price data from Qing.
 - `Research_result_3.14.csv`: Policy data from Qing.
 
-### Result (SharedCryptoTax/Jason/upload/data)
+### Result
 
 - `Weekly updates.pptx`: PowerPoint file containing weekly updates on the project.
