@@ -1,0 +1,317 @@
+---
+title: "gtrends Monthly"
+author: "Neel"
+date: "3/29/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(gtrendsR)
+library(purrr)
+library(dplyr)
+library(readxl)
+```
+
+```{r}
+countryList <- 
+  c('AD',
+ 'AO',
+ 'AI',
+ 'AG',
+ 'AR',
+ 'AM',
+ 'AW',
+ 'AU',
+ 'AT',
+ 'AZ',
+ 'BS',
+ 'BH',
+ 'BD',
+ 'BB',
+ 'BY',
+ 'BE',
+ 'BZ',
+ 'BJ',
+ 'BM',
+ 'BT',
+ 'BO',
+ 'BA',
+ 'BW',
+ 'BR',
+ 'VG',
+ 'BN',
+ 'BG',
+ 'BF',
+ 'BI',
+ 'KH',
+ 'CM',
+ 'CA',
+ 'CV',
+ 'BQ',
+ 'KY',
+ 'CF',
+ 'TD',
+ 'CL',
+ 'CN',
+ 'CO',
+ 'CG',
+ 'CD',
+ 'CK',
+ 'CR',
+ 'CI',
+ 'HR',
+ 'CU',
+ 'CW',
+ 'CY',
+ 'CZ',
+ 'DK',
+ 'DJ',
+ 'DM',
+ 'DO',
+ 'EC',
+ 'EG',
+ 'SV',
+ 'GQ',
+ 'ER',
+ 'EE',
+ 'SZ',
+ 'ET',
+ 'FO',
+ 'FJ',
+ 'FI',
+ 'FR',
+ 'GF',
+ 'PF',
+ 'GA',
+ 'GM',
+ 'GE',
+ 'DE',
+ 'GH',
+ 'GI',
+ 'GR',
+ 'GL',
+ 'GD',
+ 'GP',
+ 'GU',
+ 'GT',
+ 'GG',
+ 'GN',
+ 'GW',
+ 'GY',
+ 'HT',
+ 'HN',
+ 'HK',
+ 'HU',
+ 'IS',
+ 'IN',
+ 'ID',
+ 'IR',
+ 'IQ',
+ 'IE',
+ 'IM',
+ 'IL',
+ 'IT',
+ 'JM',
+ 'JP',
+ 'JE',
+ 'JO',
+ 'KZ',
+ 'KE',
+ 'XK',
+ 'KW',
+ 'KG',
+ 'LA',
+ 'LV',
+ 'LB',
+ 'LS',
+ 'LR',
+ 'LY',
+ 'LI',
+ 'LT',
+ 'LU',
+ 'MO',
+ 'MG',
+ 'MW',
+ 'MY',
+ 'MV',
+ 'ML',
+ 'MT',
+ 'MQ',
+ 'MR',
+ 'MU',
+ 'YT',
+ 'MX',
+ 'MD',
+ 'MC',
+ 'MN',
+ 'ME',
+ 'MS',
+ 'MA',
+ 'MZ',
+ 'MM',
+ 'NA',
+ 'NP',
+ 'NL',
+ 'NC',
+ 'NZ',
+ 'NI',
+ 'NE',
+ 'NG',
+ 'MK',
+ 'MP',
+ 'NO',
+ 'OM',
+ 'PK',
+ 'PW',
+ 'PS',
+ 'PA',
+ 'PG',
+ 'PY',
+ 'PE',
+ 'PH',
+ 'PL',
+ 'PT',
+ 'PR',
+ 'QA',
+ 'RE',
+ 'RO',
+ 'RU',
+ 'RW',
+ 'WS',
+ 'SM',
+ 'ST',
+ 'SA',
+ 'SN',
+ 'RS',
+ 'SC',
+ 'SL',
+ 'SG',
+ 'SX',
+ 'SK',
+ 'SI',
+ 'SB',
+ 'SO',
+ 'ZA',
+ 'KR',
+ 'SS',
+ 'ES',
+ 'LK',
+ 'BL',
+ 'SH',
+ 'KN',
+ 'LC',
+ 'MF',
+ 'PM',
+ 'VC',
+ 'SD',
+ 'SR',
+ 'SE',
+ 'CH',
+ 'SY',
+ 'TW',
+ 'TJ',
+ 'TZ',
+ 'TH',
+ 'TL',
+ 'TG',
+ 'TT',
+ 'TN',
+ 'TR',
+ 'TM',
+ 'TC',
+ 'VI',
+ 'UG',
+ 'UA',
+ 'AE',
+ 'GB',
+ 'US',
+ 'UY',
+ 'UZ',
+ 'VU',
+ 'VE',
+ 'VN',
+ 'EH',
+ 'YE',
+ 'ZM',
+ 'ZW')
+```
+
+```{r}
+# gets all the ones after JE alphabetically (JE is the last one I retrieved data from)
+countryList <- sort(countryList)
+countryList <- countryList[98:220]
+countryList
+```
+
+
+```{r}
+kwdates <- readLines("C:/Users/bhara/Blockchain Research Dr. Garg/kwlist.csv")
+kwdates <- kwdates[9:20]
+Monthlydates <- c()
+for (i in 2009:2023){
+  temp <- as.character(i)
+  
+  for (var in kwdates){
+    newDate <- paste(temp, "-", substring(var,1,5), " ", temp, "-", substring(var,7,11), sep = "")
+    Monthlydates <- append(Monthlydates, newDate)
+  }
+}
+Monthlydates
+```
+
+```{r}
+datesRepeated <- rep(Monthlydates, length(countryList))
+countriesRepeated <- sort(rep(countryList, length(Monthlydates)))
+```
+
+```{r}
+googleTrendsData <- function (countries, dates) {
+    
+  channel <- 'web'
+  keyword = "Bitcoin"
+  trends <- gtrends(keyword = keyword, 
+                    gprop = channel, 
+                    countries, 
+                    dates)
+
+  results <- trends$interest_over_time
+  results$hits <- as.character(results$hits)
+  return(results)
+}
+```
+
+```{r}
+output2 <- data.frame()
+outputTemp2 <- data.frame()
+length = length(datesRepeated)
+for (i in 1:length){
+  datesTemp = datesRepeated[i]
+  countriesTemp = countriesRepeated[i]
+  tryCatch({
+    print(datesTemp)
+    print(countriesTemp)
+    outputTemp2 <- map2_dfr(.x = countriesTemp, .y = datesTemp, .f = googleTrendsData)
+    output2 <- rbind(output2, outputTemp2)
+  },
+  error = function(e) {
+    if (geterrmessage() == "Status code was not 200. Returned status code:429")
+    {
+      write.csv(output2, "MONTHLY Bitcoin Google Trends Data Since 2009.csv")
+      Sys.sleep(60)
+    }
+    else if (geterrmessage() =="Cannot parse the supplied time format.")
+    {
+      write.csv(output2, "MONTHLY Bitcoin Google Trends Data Since 2009.csv")
+    }
+    else if (geterrmessage() == "widget$status_code == 200")
+    {
+      write.csv(output2, "MONTHLY Bitcoin Google Trends Data Since 2009.csv")
+    }
+    else
+      message('An Error Occured')
+      print(e)
+  })
+}
+```
